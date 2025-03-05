@@ -79,6 +79,7 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0)
     base64 (0.2.0)
+    bcrypt (3.1.20)
     benchmark (0.4.0)
     bigdecimal (3.1.9)
     bootsnap (1.18.4)
@@ -91,6 +92,16 @@ GEM
     debug (1.10.0)
       irb (~> 1.10)
       reline (>= 0.3.8)
+    devise (4.9.4)
+      bcrypt (~> 3.0)
+      orm_adapter (~> 0.1)
+      railties (>= 4.1.0)
+      responders
+      warden (~> 1.2.3)
+    devise_token_auth (1.2.5)
+      bcrypt (~> 3.0)
+      devise (> 3.5.2, < 5)
+      rails (>= 4.2.0, < 8.1)
     diff-lcs (1.6.0)
     drb (2.2.1)
     erubi (1.13.1)
@@ -148,6 +159,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.2-x86_64-linux-musl)
       racc (~> 1.4)
+    orm_adapter (0.5.0)
     pg (1.5.9)
     pp (0.6.2)
       prettyprint
@@ -200,6 +212,9 @@ GEM
       psych (>= 4.0.0)
     reline (0.6.0)
       io-console (~> 0.5)
+    responders (3.1.1)
+      actionpack (>= 5.2)
+      railties (>= 5.2)
     rspec-core (3.13.3)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.3)
@@ -223,6 +238,8 @@ GEM
     timeout (0.4.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    warden (1.2.9)
+      rack (>= 2.0.9)
     websocket-driver (0.7.7)
       base64
       websocket-extensions (>= 0.1.0)
@@ -244,6 +261,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   debug
+  devise_token_auth
   factory_bot_rails (~> 6.4)
   pg (~> 1.1)
   puma (>= 5.0)

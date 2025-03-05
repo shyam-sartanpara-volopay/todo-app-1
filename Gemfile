@@ -53,3 +53,6 @@ end
 
 
 gem "factory_bot_rails", "~> 6.4", :group => :test
+
+
+gem 'devise_token_auth'
