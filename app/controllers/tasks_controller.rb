@@ -1,0 +1,56 @@
+class TasksController < ApplicationController
+  before_action :authenticate_user!
+  before_action :set_task, only: [:show, :update, :destroy]
+
+  def index
+    tasks = current_user.tasks
+    render json: { message: 'Tasks retrieved successfully', tasks: tasks }, status: :ok
+  end
+
+
+  def show
+    render json: { message: 'Task retrieved successfully', task: @task }, status: :ok
+  end
+
+
+  def create
+    task = current_user.tasks.new(task_params)
+
+    if task.save
+      render json: { message: 'Task created successfully', data: task }, status: :created
+    else
+      render json: { message: 'Task creation failed', errors: task.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+
+  def update
+    if @task.update(task_params)
+      render json: { message: 'Task updated successfully', task: @task }, status: :ok
+    else
+      render json: { message: 'Task update failed', errors: @task.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+
+  def destroy
+    if @task.destroy
+      render json: { message: 'Task deleted successfully' }, status: :ok
+    else
+      render json: { message: 'Task deletion failed' }, status: :unprocessable_entity
+    end
+  end
+
+
+  private
+
+  def set_task
+    @task = current_user.tasks.find_by(id: params[:id])
+    return render json: { message: 'Task not found' }, status: :not_found unless @task
+  end
+
+
+  def task_params
+    params.require(:task).permit(:title, :description, :completed)
+  end
+end
