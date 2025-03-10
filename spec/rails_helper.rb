@@ -33,22 +33,29 @@ rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
 RSpec.configure do |config|
-  config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.clean_with(:truncation) # Ensures a clean state before running tests
-  end
+  config.include FactoryBot::Syntax::Methods
+  # Load support files
+  # Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
 
-  config.before(:each) do
-    DatabaseCleaner.start  # Start cleaning before each test
-  end
+  # Include AuthHelper to use `authenticated_headers(user)` in tests
+  # config.include AuthHelper, type: :request
 
-  config.after(:each) do
-    DatabaseCleaner.clean  # Clean up after each test
-  end
-  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_paths = [
-    Rails.root.join('spec/fixtures')
-  ]
+  # config.before(:suite) do
+  #   DatabaseCleaner.strategy = :transaction
+  #   DatabaseCleaner.clean_with(:truncation) # Ensures a clean state before running tests
+  # end
+
+  # config.before(:each) do
+  #   DatabaseCleaner.start  # Start cleaning before each test
+  # end
+
+  # config.after(:each) do
+  #   DatabaseCleaner.clean  # Clean up after each test
+  # end
+  # # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
+  # config.fixture_paths = [
+  #   Rails.root.join('spec/fixtures')
+  # ]
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
