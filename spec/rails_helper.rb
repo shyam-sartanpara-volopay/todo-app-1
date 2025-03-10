@@ -35,23 +35,22 @@ end
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   # Load support files
-  # Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
+  Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
+
+  # Include AuthHelper to use `authenticated_headers(user)` in tests
+  config.include AuthHelper, type: :request
+
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation) # Ensures a clean state before running tests
+  end
 
   # Include AuthHelper to use `authenticated_headers(user)` in tests
   # config.include AuthHelper, type: :request
 
-  # config.before(:suite) do
-  #   DatabaseCleaner.strategy = :transaction
-  #   DatabaseCleaner.clean_with(:truncation) # Ensures a clean state before running tests
-  # end
-
-  # config.before(:each) do
-  #   DatabaseCleaner.start  # Start cleaning before each test
-  # end
-
-  # config.after(:each) do
-  #   DatabaseCleaner.clean  # Clean up after each test
-  # end
+  config.after(:each) do
+    DatabaseCleaner.clean  # Clean up after each test
+  end
   # # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   # config.fixture_paths = [
   #   Rails.root.join('spec/fixtures')
