@@ -14,7 +14,7 @@ RSpec.describe TasksController, type: :request do
         expect(response).to have_http_status(:ok)
         
         json_response = JSON.parse(response.body)
-        expect(json_response['tasks']).to be_an(Array)
+        expect(json_response['data']).to be_an(Array)
         expect(json_response['message']).to eq('Tasks retrieved successfully')
       end
     end
@@ -55,7 +55,7 @@ RSpec.describe TasksController, type: :request do
 
         json_response = JSON.parse(response.body)
         expect(json_response['message']).to eq('Task updated successfully')
-        expect(json_response['task']['title']).to eq('Updated Task')
+        expect(json_response['data']['title']).to eq('Updated Task')
       end
     end
 

@@ -4,12 +4,12 @@ class TasksController < ApplicationController
 
   def index
     tasks = current_user.tasks
-    render json: { message: 'Tasks retrieved successfully', tasks: tasks }, status: :ok
+    render json: { message: 'Tasks retrieved successfully', data: tasks }, status: :ok
   end
 
 
   def show
-    render json: { message: 'Task retrieved successfully', task: @task }, status: :ok
+    render json: { message: 'Task retrieved successfully', data: @task }, status: :ok
   end
 
 
@@ -26,7 +26,7 @@ class TasksController < ApplicationController
 
   def update
     if @task.update(task_params)
-      render json: { message: 'Task updated successfully', task: @task }, status: :ok
+      render json: { message: 'Task updated successfully', data: @task }, status: :ok
     else
       render json: { message: 'Task update failed', errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
