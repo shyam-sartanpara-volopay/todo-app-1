@@ -1,11 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe TasksController, type: :request do
-  let!(:user) { create(:user) } # Create a test user
-  let!(:task) { create(:task, user: user) } # Ensure the task belongs to the user
+  let!(:user) { create(:user) } 
+  let!(:task) { create(:task, user: user) }
   let(:valid_attributes) { { title: "New Task", description: "RSpec testing", completed: false } }
   let(:invalid_attributes) { { title: "", description: "", completed: nil } }
-  let(:auth_headers) { user.create_new_auth_token } # Generate authentication headers
+  let(:auth_headers) { user.create_new_auth_token }
 
   describe "GET #index" do
     context "when authenticated" do
