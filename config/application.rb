@@ -8,6 +8,10 @@ Bundler.require(*Rails.groups)
 
 module TodoApp1
   class Application < Rails::Application
+    # Enable sessions in API mode
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore, key: '_todo_app_session'
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.1
 
