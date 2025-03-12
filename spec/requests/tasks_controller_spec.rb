@@ -1,9 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe TasksController, type: :request do
-  let!(:user) { create(:user) } 
+  let!(:user) { create(:user) }
+  let!(:todo_list) { create(:todo_list, user: user) } 
   let!(:task) { create(:task, user: user) }
-  let(:valid_attributes) { { title: "New Task", description: "RSpec testing", completed: false } }
+  let(:valid_attributes) { { title: "New Task", description: "RSpec testing", completed: false, todo_list_id: todo_list.id } }
   let(:invalid_attributes) { { title: "", description: "", completed: nil } }
   let(:auth_headers) { user.create_new_auth_token }
 

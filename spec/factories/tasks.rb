@@ -3,7 +3,7 @@ FactoryBot.define do
       title { "Sample Task" }
       description { "This is a test task." }
       completed { false }
-      association :user
+      association :todo_list
     end
   end
   
