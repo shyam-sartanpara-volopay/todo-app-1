@@ -2,7 +2,7 @@
 
 class User < ActiveRecord::Base
   extend Devise::Models
-  has_many :todos
+  has_many :todo_lists, dependent: :destroy # when the parent model is deleted, all data in dependent models get deleted  
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
