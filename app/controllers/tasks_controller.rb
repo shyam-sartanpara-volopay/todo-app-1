@@ -45,12 +45,15 @@ class TasksController < ApplicationController
   private
 
   def set_task
-    @task = Task.joins(:todo_list).find_by!(id: params[:id], todo_lists: { user_id: current_user.id })
-  rescue ActiveRecord::RecordNotFound
-    render json: { message: 'Task not found' }, status: :not_found
+    @task = Task.joins(:todo_list)
+                .where(todo_lists: { user_id: current_user.id })
+                .find_by(id: params[:id])
+  
+    return render json: { message: 'Task not found' }, status: :not_found unless @task
   end
+  
 
   def task_params
-    params.require(:task).permit(:title, :description, :completed, :todo_list_id)
+    params.require(:task).permit(:title, :description, :completed)
   end
 end
