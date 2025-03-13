@@ -3,26 +3,28 @@ class TasksController < ApplicationController
   before_action :set_task, only: [:show, :update, :destroy]
 
   def index
-    tasks = current_user.tasks
+    todo_list = current_user.todo_lists.find_by(id: params[:todo_list_id])
+    return render json: { message: 'Todo List not found' }, status: :not_found unless todo_list
+  
+    tasks = todo_list.tasks
     render json: { message: 'Tasks retrieved successfully', data: tasks }, status: :ok
   end
-
 
   def show
     render json: { message: 'Task retrieved successfully', data: @task }, status: :ok
   end
 
-
   def create
-    task = current_user.tasks.new(task_params)
+    todo_list = current_user.todo_lists.find_by(id: params[:todo_list_id])
+    return render json: { message: 'Todo List not found' }, status: :not_found unless todo_list
 
+    task = todo_list.tasks.build(task_params)
     if task.save
       render json: { message: 'Task created successfully', data: task }, status: :created
     else
       render json: { message: 'Task creation failed', errors: task.errors.full_messages }, status: :unprocessable_entity
     end
   end
-
 
   def update
     if @task.update(task_params)
@@ -32,7 +34,6 @@ class TasksController < ApplicationController
     end
   end
 
-
   def destroy
     if @task.destroy
       render json: { message: 'Task deleted successfully' }, status: :ok
@@ -41,16 +42,15 @@ class TasksController < ApplicationController
     end
   end
 
-
   private
 
   def set_task
-    @task = current_user.tasks.find_by(id: params[:id])
-    return render json: { message: 'Task not found' }, status: :not_found unless @task
+    @task = Task.joins(:todo_list).find_by!(id: params[:id], todo_lists: { user_id: current_user.id })
+  rescue ActiveRecord::RecordNotFound
+    render json: { message: 'Task not found' }, status: :not_found
   end
 
-
   def task_params
-    params.require(:task).permit(:title, :description, :completed, :todo_list_id, :user_id)
+    params.require(:task).permit(:title, :description, :completed, :todo_list_id)
   end
 end

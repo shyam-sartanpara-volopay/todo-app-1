@@ -15,7 +15,7 @@ class TodoListsController < ApplicationController
 
   
   def create
-    todo_list = current_user.todo_lists.new(todo_list_params)
+    todo_list = current_user.todo_lists.build(todo_list_params)
 
     if todo_list.save
       render json: { message: 'Todo list created successfully', data: format_todo_list(todo_list) }, status: :created
