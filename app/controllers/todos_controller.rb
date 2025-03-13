@@ -1,5 +1,5 @@
 class TodosController < ApplicationController
-  before_action :fetch_todo_list, only: %i[index create]
+  before_action :fetch_todo_list
   before_action :set_todo, only: %i[show update destroy]
 
   def index
@@ -48,9 +48,7 @@ class TodosController < ApplicationController
   end
 
   def set_todo
-    @todo = Todo.joins(:todo_list)
-                .where(todo_lists: { user_id: current_user.id })
-                .find_by(id: params[:id])
+    @todo = @todo_list.todos.find_by(id: params[:id])
 
     render json: { error: 'Todo not found' }, status: :not_found unless @todo
   end

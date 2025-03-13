@@ -72,12 +72,12 @@ RSpec.describe 'TodoLists API', type: :request do
     end
   end
 
-  describe 'PUT /todo_lists/:id' do
+  describe 'PATCH /todo_lists/:id' do
     let(:update_params) { { todo_list: { name: 'Updated Name' } } }
 
     context 'when user updates their own todo list' do
       it 'updates the todo list' do
-        put "/todo_lists/#{todo_list.id}", params: update_params, headers: headers
+        patch "/todo_lists/#{todo_list.id}", params: update_params, headers: headers
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['todo_list']['name']).to eq(update_params[:todo_list][:name])
       end
@@ -85,7 +85,7 @@ RSpec.describe 'TodoLists API', type: :request do
 
     context 'when user tries to update another user todo list' do
       it 'returns not found' do
-        put "/todo_lists/#{other_todo_list.id}", params: update_params, headers: headers
+        patch "/todo_lists/#{other_todo_list.id}", params: update_params, headers: headers
         expect(response).to have_http_status(:not_found)
       end
     end

@@ -58,10 +58,10 @@ RSpec.describe 'Todos API', type: :request do
     end
   end
 
-  describe 'GET /todos/:id' do
+  describe 'GET /todo_lists/:todo_list_id/todos/:id' do
     context 'when user is authenticated' do
       it 'returns the todo details' do
-        get "/todos/#{todo.id}", headers: headers
+        get "/todo_lists/#{todo_list.id}/todos/#{todo.id}", headers: headers
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['id']).to eq(todo.id)
       end
@@ -69,18 +69,18 @@ RSpec.describe 'Todos API', type: :request do
 
     context 'when user tries to access another user todo' do
       it 'returns not found' do
-        get "/todos/#{other_todo.id}", headers: headers
+        get "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", headers: headers
         expect(response).to have_http_status(:not_found)
       end
     end
   end
 
-  describe 'PUT /todos/:id' do
+  describe 'PATCH /todo_lists/:todo_list_id/todos/:id' do
     let(:update_params) { { todo: { title: 'Updated Title' } } }
 
     context 'when user updates their own todo' do
       it 'updates the todo' do
-        put "/todos/#{todo.id}", params: update_params, headers: headers
+        patch "/todo_lists/#{todo_list.id}/todos/#{todo.id}", params: update_params, headers: headers
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['todo']['title']).to eq('Updated Title')
       end
@@ -88,17 +88,17 @@ RSpec.describe 'Todos API', type: :request do
 
     context 'when user tries to update another user todo' do
       it 'returns not found' do
-        put "/todos/#{other_todo.id}", params: update_params, headers: headers
+        patch "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", params: update_params, headers: headers
         expect(response).to have_http_status(:not_found)
       end
     end
   end
 
-  describe 'DELETE /todos/:id' do
+  describe 'DELETE /todo_lists/:todo_list_id/todos/:id' do
     context 'when user deletes their own todo' do
       it 'deletes the todo' do
         expect do
-          delete "/todos/#{todo.id}", headers: headers
+          delete "/todo_lists/#{todo_list.id}/todos/#{todo.id}", headers: headers
         end.to change(Todo, :count).by(-1)
 
         expect(response).to have_http_status(:ok)
@@ -107,7 +107,7 @@ RSpec.describe 'Todos API', type: :request do
 
     context 'when user tries to delete another user todo' do
       it 'returns not found' do
-        delete "/todos/#{other_todo.id}", headers: headers
+        delete "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", headers: headers
         expect(response).to have_http_status(:not_found)
       end
     end
