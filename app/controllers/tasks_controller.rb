@@ -1,6 +1,6 @@
 class TasksController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_todo_list, only: [:index, :create]
+  before_action :set_todo_list
   before_action :set_task, only: [:show, :update, :destroy]
 
   def index
@@ -50,9 +50,6 @@ class TasksController < ApplicationController
 
 
   def set_task
-    set_todo_list
-    return unless @todo_list
-  
     @task = @todo_list.tasks.find_by(id: params[:id])
     return render json: { message: 'Task not found' }, status: :not_found unless @task
   end
