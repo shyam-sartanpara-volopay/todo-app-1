@@ -3,12 +3,12 @@ class TasksController < ApplicationController
   before_action :set_task, only: [:show, :update, :destroy]
 
   def index
-    todo_list = current_user.todo_lists.find_by(id: params[:todo_list_id])
+    todo_list = current_user.todo_lists.includes(:tasks).find_by(id: params[:todo_list_id])
     return render json: { message: 'Todo List not found' }, status: :not_found unless todo_list
   
-    tasks = todo_list.tasks
-    render json: { message: 'Tasks retrieved successfully', data: tasks }, status: :ok
+    render json: { message: 'Tasks retrieved successfully', data: todo_list.tasks }, status: :ok
   end
+  
 
   def show
     render json: { message: 'Task retrieved successfully', data: @task }, status: :ok
@@ -36,21 +36,22 @@ class TasksController < ApplicationController
 
   def destroy
     if @task.destroy
-      render json: { message: 'Task deleted successfully' }, status: :ok
+      render json: { message: 'Task deleted successfully', data: @task }, status: :ok
     else
-      render json: { message: 'Task deletion failed' }, status: :unprocessable_entity
+      render json: { message: 'Task deletion failed', errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
   end
+  
 
   private
 
   def set_task
     @task = Task.joins(:todo_list)
-                .where(todo_lists: { user_id: current_user.id })
+                .where(todo_lists: { id: params[:todo_list_id], user_id: current_user.id })
                 .find_by(id: params[:id])
   
     return render json: { message: 'Task not found' }, status: :not_found unless @task
-  end
+  end  
   
 
   def task_params

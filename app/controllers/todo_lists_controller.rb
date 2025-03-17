@@ -46,8 +46,9 @@ class TodoListsController < ApplicationController
   private
 
   def set_todo_list
-    @todo_list = current_user.todo_lists.includes(:tasks).find_by(id: params[:id])
-    return render json: { message: 'Todo list not found' }, status: :not_found unless @todo_list
+    @todo_list = current_user.todo_lists.includes(:tasks).find_by!(id: params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { message: 'Todo list not found' }, status: :not_found
   end
 
   
