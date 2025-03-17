@@ -1,12 +1,12 @@
 class TasksController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_todo_list
   before_action :set_task, only: [:show, :update, :destroy]
 
   def index
-    tasks = current_user.tasks
-    render json: { message: 'Tasks retrieved successfully', data: tasks }, status: :ok
+    render json: { message: 'Tasks retrieved successfully', data: @todo_list.tasks }, status: :ok
   end
-
+  
 
   def show
     render json: { message: 'Task retrieved successfully', data: @task }, status: :ok
@@ -14,8 +14,7 @@ class TasksController < ApplicationController
 
 
   def create
-    task = current_user.tasks.new(task_params)
-
+    task = @todo_list.tasks.build(task_params)
     if task.save
       render json: { message: 'Task created successfully', data: task }, status: :created
     else
@@ -35,20 +34,26 @@ class TasksController < ApplicationController
 
   def destroy
     if @task.destroy
-      render json: { message: 'Task deleted successfully' }, status: :ok
+      render json: { message: 'Task deleted successfully', data: @task }, status: :ok
     else
-      render json: { message: 'Task deletion failed' }, status: :unprocessable_entity
+      render json: { message: 'Task deletion failed', errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
   end
-
+  
 
   private
 
-  def set_task
-    @task = current_user.tasks.find_by(id: params[:id])
-    return render json: { message: 'Task not found' }, status: :not_found unless @task
+  def set_todo_list
+    @todo_list = current_user.todo_lists.find_by(id: params[:todo_list_id])
+    return render json: { message: 'Todo List not found' }, status: :not_found unless @todo_list
   end
 
+
+  def set_task
+    @task = @todo_list.tasks.find_by(id: params[:id])
+    return render json: { message: 'Task not found' }, status: :not_found unless @task
+  end
+  
 
   def task_params
     params.require(:task).permit(:title, :description, :completed)
