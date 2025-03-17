@@ -1,12 +1,10 @@
 class TasksController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_todo_list, only: [:index, :create]
   before_action :set_task, only: [:show, :update, :destroy]
 
   def index
-    todo_list = current_user.todo_lists.includes(:tasks).find_by(id: params[:todo_list_id])
-    return render json: { message: 'Todo List not found' }, status: :not_found unless todo_list
-  
-    render json: { message: 'Tasks retrieved successfully', data: todo_list.tasks }, status: :ok
+    render json: { message: 'Tasks retrieved successfully', data: @todo_list.tasks }, status: :ok
   end
   
 
@@ -14,17 +12,16 @@ class TasksController < ApplicationController
     render json: { message: 'Task retrieved successfully', data: @task }, status: :ok
   end
 
-  def create
-    todo_list = current_user.todo_lists.find_by(id: params[:todo_list_id])
-    return render json: { message: 'Todo List not found' }, status: :not_found unless todo_list
 
-    task = todo_list.tasks.build(task_params)
+  def create
+    task = @todo_list.tasks.build(task_params)
     if task.save
       render json: { message: 'Task created successfully', data: task }, status: :created
     else
       render json: { message: 'Task creation failed', errors: task.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
 
   def update
     if @task.update(task_params)
@@ -33,6 +30,7 @@ class TasksController < ApplicationController
       render json: { message: 'Task update failed', errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
 
   def destroy
     if @task.destroy
@@ -45,13 +43,19 @@ class TasksController < ApplicationController
 
   private
 
+  def set_todo_list
+    @todo_list = current_user.todo_lists.find_by(id: params[:todo_list_id])
+    return render json: { message: 'Todo List not found' }, status: :not_found unless @todo_list
+  end
+
+
   def set_task
-    @task = Task.joins(:todo_list)
-                .where(todo_lists: { id: params[:todo_list_id], user_id: current_user.id })
-                .find_by(id: params[:id])
+    set_todo_list
+    return unless @todo_list
   
+    @task = @todo_list.tasks.find_by(id: params[:id])
     return render json: { message: 'Task not found' }, status: :not_found unless @task
-  end  
+  end
   
 
   def task_params
