@@ -12,7 +12,7 @@ class TodosController < ApplicationController
   end
 
   def create
-    todo = @todo_list.todos.new(todo_params)
+    todo = @todo_list.todos.build(todo_params)
     if todo.save
       render json: { todo:, message: 'Todo created successfully' }, status: :created
     else
@@ -32,7 +32,7 @@ class TodosController < ApplicationController
     if @todo.destroy
       render json: { message: 'Todo deleted successfully' }, status: :ok
     else
-      render json: { errors: @todo_list.errors.full_messages }
+      render json: { errors: @todo_list.errors.full_messages }, status: :unprocessable_entity
     end
   end
 

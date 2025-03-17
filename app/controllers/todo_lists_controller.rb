@@ -2,7 +2,7 @@ class TodoListsController < ApplicationController
   before_action :set_todo_list, only: %i[show update destroy]
 
   def index
-    todo_lists = current_user.todo_lists.includes(:todos)
+    todo_lists = current_user.todo_lists
     render json: todo_lists, status: :ok
   end
 
@@ -11,7 +11,7 @@ class TodoListsController < ApplicationController
   end
 
   def create
-    todo_list = current_user.todo_lists.new(todo_list_params)
+    todo_list = current_user.todo_lists.build(todo_list_params)
     if todo_list.save
       render json: { todo_list: todo_list, message: 'Todo list created successfully' }, status: :created
     else
