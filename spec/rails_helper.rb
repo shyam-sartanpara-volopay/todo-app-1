@@ -37,16 +37,12 @@ RSpec.configure do |config|
   # Load support files
   Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
 
-  # Include AuthHelper to use `authenticated_headers(user)` in tests
-  config.include AuthHelper, type: :request
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation) # Ensures a clean state before running tests
   end
 
-  # Include AuthHelper to use `authenticated_headers(user)` in tests
-  # config.include AuthHelper, type: :request
 
   config.after(:each) do
     DatabaseCleaner.clean  # Clean up after each test

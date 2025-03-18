@@ -4,127 +4,110 @@ RSpec.describe 'Todos API', type: :request do
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
   let(:headers) { user.create_new_auth_token }
-  let!(:todos) { create_list(:todo, 3, user: user) }
+  let(:todo_list) { create(:todo_list, user: user) }
+  let!(:todos) { create_list(:todo, 3, todo_list: todo_list) }
   let(:todo) { todos.first }
+  let(:other_todo_list) { create(:todo_list, user: other_user) }
+  let(:other_todo) { create(:todo, todo_list: other_todo_list) }
 
-  describe 'GET /todos' do
+  describe 'GET /todo_lists/:todo_list_id/todos' do
     context 'when user is not authenticated' do
       it 'returns an unauthorized error' do
-        get '/todos'
+        get "/todo_lists/#{todo_list.id}/todos"
         expect(response).to have_http_status(:unauthorized)
       end
     end
 
     context 'when authenticated' do
       it 'returns all todos belonging to the user' do
-        get '/todos', headers: headers
+        get "/todo_lists/#{todo_list.id}/todos", headers: headers
         expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body).size).to eq(todos.size)
       end
     end
   end
 
-  describe 'GET /todos/:id' do
-    context 'when user is not authenticated' do
-      it 'returns an unauthorized error' do
-        get "/todos/#{todo.id}"
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    context 'when todo belongs to the user' do
-      it 'returns the requested todo' do
-        get "/todos/#{todo.id}", headers: headers
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['todo']['title']).to eq(todo.title)
-      end
-    end
-
-    context 'when todo does not belong to the user' do
-      let!(:other_todo) { create(:todo, user: other_user) }
-
-      it 'returns a not found error' do
-        get "/todos/#{other_todo.id}", headers: headers
-        expect(response).to have_http_status(:not_found)
-      end
-    end
-  end
-
-  describe 'POST /todos' do
+  describe 'POST /todo_lists/:todo_list_id/todos' do
     let(:valid_params) { { todo: { title: 'New Todo', description: 'Sample description' } } }
     let(:invalid_params) { { todo: { title: '', description: '' } } }
 
     context 'when user is not authenticated' do
       it 'returns an unauthorized error' do
-        post '/todos', params: valid_params
+        post "/todo_lists/#{todo_list.id}/todos", params: valid_params
         expect(response).to have_http_status(:unauthorized)
       end
     end
 
     context 'when valid params are provided' do
       it 'creates a new todo' do
-        expect {
-          post '/todos', params: valid_params, headers: headers
-        }.to change(user.todos, :count).by(1)
+        expect do
+          post "/todo_lists/#{todo_list.id}/todos", params: valid_params, headers: headers
+        end.to change(Todo, :count).by(1)
+
         expect(response).to have_http_status(:created)
+        expect(JSON.parse(response.body)['message']).to eq('Todo created successfully')
       end
     end
 
     context 'when invalid params are provided' do
       it 'returns an error' do
-        post '/todos', params: invalid_params, headers: headers
+        post "/todo_lists/#{todo_list.id}/todos", params: invalid_params, headers: headers
+
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
 
-  describe 'PATCH /todos/:id' do
-    let(:update_params) { { todo: { title: 'Updated Title', description: 'Updated description' } } }
-
-    context 'when user is not authenticated' do
-      it 'returns an unauthorized error' do
-        patch "/todos/#{todo.id}", params: update_params
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    context 'when todo belongs to the user' do
-      it 'updates the todo' do
-        patch "/todos/#{todo.id}", params: update_params, headers: headers
+  describe 'GET /todo_lists/:todo_list_id/todos/:id' do
+    context 'when user is authenticated' do
+      it 'returns the todo details' do
+        get "/todo_lists/#{todo_list.id}/todos/#{todo.id}", headers: headers
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['message']).to eq('Todo updated successfully')
+        expect(JSON.parse(response.body)['id']).to eq(todo.id)
       end
     end
 
-    context 'when todo does not belong to the user' do
-      let!(:other_todo) { create(:todo, user: other_user) }
-
-      it 'returns a not found error' do
-        patch "/todos/#{other_todo.id}", params: update_params, headers: headers
+    context 'when user tries to access another user todo' do
+      it 'returns not found' do
+        get "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", headers: headers
         expect(response).to have_http_status(:not_found)
       end
     end
   end
 
-  describe 'DELETE /todos/:id' do
-    context 'when user is not authenticated' do
-      it 'returns an unauthorized error' do
-        delete "/todos/#{todo.id}"
-        expect(response).to have_http_status(:unauthorized)
+  describe 'PATCH /todo_lists/:todo_list_id/todos/:id' do
+    let(:update_params) { { todo: { title: 'Updated Title' } } }
+
+    context 'when user updates their own todo' do
+      it 'updates the todo' do
+        patch "/todo_lists/#{todo_list.id}/todos/#{todo.id}", params: update_params, headers: headers
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['todo']['title']).to eq('Updated Title')
       end
     end
 
-    context 'when todo belongs to the user' do
+    context 'when user tries to update another user todo' do
+      it 'returns not found' do
+        patch "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", params: update_params, headers: headers
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'DELETE /todo_lists/:todo_list_id/todos/:id' do
+    context 'when user deletes their own todo' do
       it 'deletes the todo' do
-        expect { delete "/todos/#{todo.id}", headers: headers }.to change(user.todos, :count).by(-1)
+        expect do
+          delete "/todo_lists/#{todo_list.id}/todos/#{todo.id}", headers: headers
+        end.to change(Todo, :count).by(-1)
+
         expect(response).to have_http_status(:ok)
       end
     end
 
-    context 'when todo does not belong to the user' do
-      let!(:other_todo) { create(:todo, user: other_user) }
-
-      it 'returns a not found error' do
-        delete "/todos/#{other_todo.id}", headers: headers
+    context 'when user tries to delete another user todo' do
+      it 'returns not found' do
+        delete "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", headers: headers
         expect(response).to have_http_status(:not_found)
       end
     end
