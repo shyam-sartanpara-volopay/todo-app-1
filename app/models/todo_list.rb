@@ -11,4 +11,7 @@ class TodoList < ApplicationRecord
     completed: "completed"
   }
 
+  has_many :collaborations, dependent: :destroy
+  has_many :collaborators, through: :collaborations, source: :user
+
 end
