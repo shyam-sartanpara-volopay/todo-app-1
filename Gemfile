@@ -14,6 +14,10 @@ gem "puma", ">= 5.0"
 # Authentication gems
 gem 'devise_token_auth'
 
+# Authorization
+ 
+gem 'pundit'
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 

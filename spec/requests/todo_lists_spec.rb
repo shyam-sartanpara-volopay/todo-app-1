@@ -7,6 +7,10 @@ RSpec.describe 'TodoLists API', type: :request do
   let!(:todo_lists) { create_list(:todo_list, 3, user: user) }
   let(:todo_list) { todo_lists.first }
   let(:other_todo_list) { create(:todo_list, user: other_user) }
+  let!(:other_user_headers) { other_user.create_new_auth_token }
+  let!(:collaboration_user) { create(:user) }
+  let(:collaboration_user_headers) { collaboration_user.create_new_auth_token }
+  let!(:collaboration) { create(:collaboration, user: collaboration_user, todo_list: todo_list) }
 
   describe 'GET /todo_lists' do
     context 'when user is not authenticated' do
@@ -26,6 +30,13 @@ RSpec.describe 'TodoLists API', type: :request do
   end
 
   describe 'GET /todo_lists/:id' do
+    context 'when user is not authenticated' do
+      it 'returns unauthorized error' do
+        get "/todo_lists/#{todo_list.id}"
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
     context 'when user is authenticated' do
       it 'returns the todo list details' do
         get "/todo_lists/#{todo_list.id}", headers: headers
@@ -37,7 +48,23 @@ RSpec.describe 'TodoLists API', type: :request do
     context 'when user tries to access another user todo list' do
       it 'returns not found' do
         get "/todo_lists/#{other_todo_list.id}", headers: headers
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when collaborator tries to access' do
+      it 'returns the todo list details' do
+        get "/todo_lists/#{todo_list.id}", headers: collaboration_user_headers
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['id']).to eq(todo_list.id)
+      end
+    end
+
+    context 'when non-collaborator tries to access' do
+      it 'returns error' do
+        get "/todo_lists/#{todo_list.id}", headers: other_user_headers
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)).to eq('error' => 'You are not authorized to perform this action')
       end
     end
   end
@@ -86,12 +113,41 @@ RSpec.describe 'TodoLists API', type: :request do
     context 'when user tries to update another user todo list' do
       it 'returns not found' do
         patch "/todo_lists/#{other_todo_list.id}", params: update_params, headers: headers
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when user is a collaborator' do
+      it 'updates the todo list' do
+        patch "/todo_lists/#{todo_list.id}", params: update_params, headers: collaboration_user_headers
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['todo_list']['name']).to eq(update_params[:todo_list][:name])
+      end
+    end
+
+    context 'when user is a not a collaborator' do
+      it 'returns error' do
+        patch "/todo_lists/#{todo_list.id}", params: update_params, headers: other_user_headers
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
 
   describe 'DELETE /todo_lists/:id' do
+    context 'when user tries to delete another user todo list' do
+      it 'returns forbidden' do
+        delete "/todo_lists/#{other_todo_list.id}", headers: headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when user is a collaborator' do
+      it 'returns forbidden' do
+        delete "/todo_lists/#{todo_list.id}", headers: collaboration_user_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'when user deletes their own todo list' do
       it 'deletes the todo list' do
         expect do
@@ -99,13 +155,6 @@ RSpec.describe 'TodoLists API', type: :request do
         end.to change(TodoList, :count).by(-1)
 
         expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'when user tries to delete another user todo list' do
-      it 'returns not found' do
-        delete "/todo_lists/#{other_todo_list.id}", headers: headers
-        expect(response).to have_http_status(:not_found)
       end
     end
   end
