@@ -2,11 +2,7 @@ class TodoListsController < ApplicationController
   before_action :set_todo_list, only: %i[show update destroy]
 
   def index
-    todo_lists = TodoList
-                 .left_outer_joins(:collaborations)
-                 .where('todo_lists.user_id = ? OR collaborations.user_id = ?', current_user.id, current_user.id)
-                 .distinct
-
+    todo_lists = policy_scope(TodoList)
     render json: todo_lists, status: :ok
   end
 

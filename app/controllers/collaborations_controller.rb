@@ -1,8 +1,8 @@
 class CollaborationsController < ApplicationController
   before_action :fetch_todo_list
-  before_action :authorize_collaboration
 
   def index
+    authorize @todo_list, :view_collaborations?
     collaborations = @todo_list.collaborations
     render json: collaborations, status: :ok
   end
@@ -14,7 +14,7 @@ class CollaborationsController < ApplicationController
     end
 
     collaboration = @todo_list.collaborations.build(user_id: params[:user_id])
-
+    authorize collaboration
     if collaboration.save
       render json: { collaboration:, message: 'Collaboration created successfully' }, status: :created
     else
@@ -29,7 +29,12 @@ class CollaborationsController < ApplicationController
 
     if collaboration.nil?
       render json: { error: 'Collaboration not found' }, status: :not_found
-    elsif collaboration.destroy
+      return
+    end
+
+    authorize collaboration
+
+    if collaboration.destroy
       render json: { message: 'Collaboration deleted successfully' }, status: :ok
     else
       render json: { errors: collaboration.errors.full_messages }, status: :unprocessable_entity
@@ -41,9 +46,5 @@ class CollaborationsController < ApplicationController
   def fetch_todo_list
     @todo_list = TodoList.find_by(id: params[:todo_list_id])
     render json: { error: 'No TodoList exists' }, status: :not_found unless @todo_list
-  end
-
-  def authorize_collaboration
-    authorize @todo_list, :access_collaboration?
   end
 end

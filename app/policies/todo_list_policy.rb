@@ -1,4 +1,12 @@
 class TodoListPolicy < ApplicationPolicy
+  class Scope < Scope
+    def resolve
+      scope.left_outer_joins(:collaborations)
+           .where('todo_lists.user_id = ? OR collaborations.user_id = ?', user.id, user.id)
+           .distinct
+    end
+  end
+
   def show?
     isowner? || iscollaborator?
   end
@@ -15,11 +23,11 @@ class TodoListPolicy < ApplicationPolicy
     isowner?
   end
 
-  def access_collaboration?
-    isowner?
+  def view_collaborations?
+    isowner? || iscollaborator?
   end
 
-  def access_todos?
+  def view_todos?
     isowner? || iscollaborator?
   end
 

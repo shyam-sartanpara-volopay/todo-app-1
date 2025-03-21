@@ -17,11 +17,10 @@ RSpec.describe 'Collaborations', type: :request do
       end
     end
 
-    context 'when user is not owner' do
-      it 'returns authorization error' do
+    context 'when user is not owner but a collaborator' do
+      it 'returns list of collaborations' do
         get "/todo_lists/#{todo_list.id}/collaborations", headers: collaboration_user_headers
-        expect(response).to have_http_status(:forbidden)
-        expect(JSON.parse(response.body)).to eq('error' => 'You are not authorized to perform this action')
+        expect(response).to have_http_status(:ok)
       end
     end
   end
@@ -80,7 +79,7 @@ RSpec.describe 'Collaborations', type: :request do
 
     context 'when user is not owner' do
       it 'returns authorization error' do
-        delete "/todo_lists/#{todo_list.id}/collaborations/#{user.id}", headers: collaboration_user_headers
+        delete "/todo_lists/#{todo_list.id}/collaborations/#{collaboration_user.id}", headers: collaboration_user_headers
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)).to eq('error' => 'You are not authorized to perform this action')
       end
