@@ -2,13 +2,13 @@ class CollaborationsController < ApplicationController
   before_action :fetch_todo_list
 
   def index
-    authorize Collaboration.new(todo_list: @todo_list), :index? 
+    authorize @todo_list, policy_class: CollaborationPolicy
     collaborations = @todo_list.collaborations
     render json: collaborations, status: :ok
   end
 
   def create
-    authorize Collaboration.new(todo_list: @todo_list), :create? 
+    authorize @todo_list, policy_class: CollaborationPolicy
 
     user = User.find_by(email: params[:email])
     return render json: { error: 'User not found' }, status: :not_found unless user
@@ -23,7 +23,7 @@ class CollaborationsController < ApplicationController
   end
 
   def destroy
-    authorize Collaboration.new(todo_list: @todo_list), :destroy?
+    authorize @todo_list, policy_class: CollaborationPolicy
     collaboration = @todo_list.collaborations.find_by(user_id: params[:id])
 
     if collaboration.nil?

@@ -3,13 +3,13 @@ class TodosController < ApplicationController
   before_action :set_todo, only: %i[show update destroy]
 
   def index
-    authorize Todo.new(todo_list: @todo_list), :index? 
+    authorize @todo_list, policy_class: TodoPolicy 
     todos = @todo_list.todos
     render json: todos, status: :ok
   end
 
   def show
-    authorize Todo.new(todo_list: @todo_list), :show? 
+    authorize @todo_list, policy_class: TodoPolicy 
     render json: @todo, status: :ok
   end
 
@@ -23,7 +23,7 @@ class TodosController < ApplicationController
   end
 
   def update
-    authorize Todo.new(todo_list: @todo_list), :update? 
+    authorize @todo_list, policy_class: TodoPolicy 
     if @todo.update(todo_params)
       render json: { todo: @todo, message: 'Todo updated successfully' }, status: :ok
     else
@@ -32,7 +32,7 @@ class TodosController < ApplicationController
   end
 
   def destroy
-    authorize Todo.new(todo_list: @todo_list), :destroy? 
+    authorize @todo_list, policy_class: TodoPolicy 
     if @todo.destroy
       render json: { message: 'Todo deleted successfully' }, status: :ok
     else

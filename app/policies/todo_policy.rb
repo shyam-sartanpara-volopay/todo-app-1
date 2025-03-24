@@ -18,10 +18,10 @@ class TodoPolicy < ApplicationPolicy
   private
 
   def isowner?
-    record.todo_list.user_id == user.id
+    record.user_id == user.id
   end
 
   def iscollaborator?
-    record.todo_list.collaborations.exists?(user_id: user.id)
+    record.collaborations.exists?(user_id: user.id)
   end
 end
