@@ -2,37 +2,34 @@ class CollaborationsController < ApplicationController
   before_action :fetch_todo_list
 
   def index
-    authorize @todo_list, :view_collaborations?
+    authorize Collaboration.new(todo_list: @todo_list), :index? 
     collaborations = @todo_list.collaborations
     render json: collaborations, status: :ok
   end
 
   def create
-    if @todo_list.user_id == params[:user_id].to_i
-      render json: { error: 'Owner cannot be a collaborator' }, status: :unprocessable_entity
-      return
-    end
+    authorize Collaboration.new(todo_list: @todo_list), :create? 
 
-    collaboration = @todo_list.collaborations.build(user_id: params[:user_id])
-    authorize collaboration
+    user = User.find_by(email: params[:email])
+    return render json: { error: 'User not found' }, status: :not_found unless user
+
+    collaboration = @todo_list.collaborations.build(user_id: user.id)
+
     if collaboration.save
       render json: { collaboration:, message: 'Collaboration created successfully' }, status: :created
     else
       render json: { errors: collaboration.errors.full_messages }, status: :unprocessable_entity
     end
-  rescue ActiveRecord::RecordNotUnique
-    render json: { error: 'User is already a collaborator' }, status: :unprocessable_entity
   end
 
   def destroy
+    authorize Collaboration.new(todo_list: @todo_list), :destroy?
     collaboration = @todo_list.collaborations.find_by(user_id: params[:id])
 
     if collaboration.nil?
       render json: { error: 'Collaboration not found' }, status: :not_found
       return
     end
-
-    authorize collaboration
 
     if collaboration.destroy
       render json: { message: 'Collaboration deleted successfully' }, status: :ok
@@ -44,7 +41,7 @@ class CollaborationsController < ApplicationController
   private
 
   def fetch_todo_list
-    @todo_list = TodoList.find_by(id: params[:todo_list_id])
+    @todo_list = policy_scope(TodoList).find_by(id: params[:todo_list_id])
     render json: { error: 'No TodoList exists' }, status: :not_found unless @todo_list
   end
 end

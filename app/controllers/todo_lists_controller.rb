@@ -13,7 +13,6 @@ class TodoListsController < ApplicationController
 
   def create
     todo_list = current_user.todo_lists.build(todo_list_params)
-    authorize todo_list
     if todo_list.save
       render json: { todo_list: todo_list, message: 'Todo list created successfully' }, status: :created
     else
@@ -46,7 +45,7 @@ class TodoListsController < ApplicationController
   end
 
   def set_todo_list
-    @todo_list = TodoList.find_by(id: params[:id])
+    @todo_list = policy_scope(TodoList).find_by(id: params[:id])
     render json: { error: 'TodoList not found' }, status: :not_found unless @todo_list
   end
 end

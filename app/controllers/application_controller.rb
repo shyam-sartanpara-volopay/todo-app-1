@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::API
   include DeviseTokenAuth::Concerns::SetUserByToken
   include ActionController::Cookies
-  include Pundit
+  include Pundit::Authorization
 
   # while running in browsers enable this CSRF protection
   # include ActionController::RequestForgeryProtection

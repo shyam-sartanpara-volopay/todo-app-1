@@ -14,6 +14,14 @@ RSpec.describe 'Todos API', type: :request do
   let(:collaboration_user_headers) { collaboration_user.create_new_auth_token }
   let!(:collaboration) { create(:collaboration, user: collaboration_user, todo_list: todo_list) }
 
+  RSpec.shared_examples 'not_found error' do
+    it 'returns not_found error' do
+      subject
+      expect(response).to have_http_status(:not_found)
+      expect(JSON.parse(response.body)).to eq('error' => 'No TodoList exists')
+    end
+  end
+
   describe 'GET /todo_lists/:todo_list_id/todos' do
     context 'when user is not authenticated' do
       it 'returns an unauthorized error' do
@@ -39,10 +47,8 @@ RSpec.describe 'Todos API', type: :request do
     end
 
     context 'when non collaborator tries access' do
-      it 'returns forbidden' do
-        get "/todo_lists/#{todo_list.id}/todos", headers: other_user_headers
-        expect(response).to have_http_status(:forbidden)
-      end
+      subject{ get "/todo_lists/#{todo_list.id}/todos", headers: other_user_headers }
+      it_behaves_like 'not_found error'
     end
   end
 
@@ -84,10 +90,8 @@ RSpec.describe 'Todos API', type: :request do
     end
 
     context 'when non collaborator tries access' do
-      it 'returns forbidden' do
-        post "/todo_lists/#{todo_list.id}/todos", params: valid_params, headers: other_user_headers
-        expect(response).to have_http_status(:forbidden)
-      end
+      subject{ post "/todo_lists/#{todo_list.id}/todos", params: valid_params, headers: other_user_headers }
+      it_behaves_like 'not_found error'
     end
   end
 
@@ -101,10 +105,8 @@ RSpec.describe 'Todos API', type: :request do
     end
 
     context 'when user tries to access another user todo' do
-      it 'returns not found' do
-        get "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", headers: headers
-        expect(response).to have_http_status(:forbidden)
-      end
+      subject{ get "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", headers: headers }
+      it_behaves_like 'not_found error'
     end
 
     context 'when collaborator tries access' do
@@ -115,10 +117,8 @@ RSpec.describe 'Todos API', type: :request do
     end
 
     context 'when non collaborator tries access' do
-      it 'returns forbidden' do
-        get "/todo_lists/#{todo_list.id}/todos/#{todo.id}", headers: other_user_headers
-        expect(response).to have_http_status(:forbidden)
-      end
+      subject{ get "/todo_lists/#{todo_list.id}/todos/#{todo.id}", headers: other_user_headers }
+      it_behaves_like 'not_found error'
     end
   end
 
@@ -134,10 +134,8 @@ RSpec.describe 'Todos API', type: :request do
     end
 
     context 'when user tries to update another user todo' do
-      it 'returns not found' do
-        patch "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", params: update_params, headers: headers
-        expect(response).to have_http_status(:forbidden)
-      end
+      subject{ patch "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", params: update_params, headers: headers }
+      it_behaves_like 'not_found error'
     end
 
     context 'when collaborator tries access' do
@@ -147,11 +145,9 @@ RSpec.describe 'Todos API', type: :request do
       end
     end
 
-    context 'when non collaborator tries access' do
-      it 'returns forbidden' do
-        patch "/todo_lists/#{todo_list.id}/todos/#{todo.id}", params: update_params, headers: other_user_headers
-        expect(response).to have_http_status(:forbidden)
-      end
+    context 'when non collaborator tries access' do 
+      subject{ patch "/todo_lists/#{todo_list.id}/todos/#{todo.id}", params: update_params, headers: other_user_headers }
+      it_behaves_like 'not_found error'
     end
   end
 
@@ -167,10 +163,8 @@ RSpec.describe 'Todos API', type: :request do
     end
 
     context 'when user tries to delete another user todo' do
-      it 'returns not found' do
-        delete "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", headers: headers
-        expect(response).to have_http_status(:forbidden)
-      end
+      subject{ delete "/todo_lists/#{other_todo_list.id}/todos/#{other_todo.id}", headers: headers }
+      it_behaves_like 'not_found error'
     end
   end
 
@@ -182,9 +176,7 @@ RSpec.describe 'Todos API', type: :request do
   end
 
   context 'when non collaborator tries access' do
-    it 'returns forbidden' do
-      delete "/todo_lists/#{todo_list.id}/todos/#{todo.id}", headers: other_user_headers
-      expect(response).to have_http_status(:forbidden)
-    end
+    subject{ delete "/todo_lists/#{todo_list.id}/todos/#{todo.id}", headers: other_user_headers }
+    it_behaves_like 'not_found error'
   end
 end

@@ -1,12 +1,14 @@
 class CollaborationPolicy < ApplicationPolicy
-  def index
-    isowner?
+  def index?
+    isowner? || iscollaborator?
   end
-  def create?
+  
+
+  def create? 
     isowner?
   end
 
-  def destroy?
+  def destroy?  
     isowner?
   end
 
@@ -16,7 +18,7 @@ class CollaborationPolicy < ApplicationPolicy
     record.todo_list.user_id == user.id
   end
 
-  # def iscollaborator?
-  #   record.todo_list.collaborations.exists?(user_id: user.id)
-  # end
+  def iscollaborator?
+    record.todo_list.collaborations.exists?(user_id: user.id)
+  end
 end

@@ -1,9 +1,9 @@
 class TodoPolicy < ApplicationPolicy
-  def show?
+  def index?
     isowner? || iscollaborator?
   end
-
-  def create?
+    
+  def show?
     isowner? || iscollaborator?
   end
 
