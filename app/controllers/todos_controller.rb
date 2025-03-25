@@ -3,11 +3,13 @@ class TodosController < ApplicationController
   before_action :set_todo, only: %i[show update destroy]
 
   def index
+    authorize @todo_list, policy_class: TodoPolicy 
     todos = @todo_list.todos
     render json: todos, status: :ok
   end
 
   def show
+    authorize @todo_list, policy_class: TodoPolicy 
     render json: @todo, status: :ok
   end
 
@@ -21,6 +23,7 @@ class TodosController < ApplicationController
   end
 
   def update
+    authorize @todo_list, policy_class: TodoPolicy 
     if @todo.update(todo_params)
       render json: { todo: @todo, message: 'Todo updated successfully' }, status: :ok
     else
@@ -29,6 +32,7 @@ class TodosController < ApplicationController
   end
 
   def destroy
+    authorize @todo_list, policy_class: TodoPolicy 
     if @todo.destroy
       render json: { message: 'Todo deleted successfully' }, status: :ok
     else
@@ -43,7 +47,7 @@ class TodosController < ApplicationController
   end
 
   def fetch_todo_list
-    @todo_list = current_user.todo_lists.find_by(id: params[:todo_list_id])
+    @todo_list = policy_scope(TodoList).find_by(id: params[:todo_list_id])
     render json: { error: 'No TodoList exists' }, status: :not_found unless @todo_list
   end
 

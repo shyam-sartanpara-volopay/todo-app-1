@@ -2,11 +2,12 @@ class TodoListsController < ApplicationController
   before_action :set_todo_list, only: %i[show update destroy]
 
   def index
-    todo_lists = current_user.todo_lists
+    todo_lists = policy_scope(TodoList)
     render json: todo_lists, status: :ok
   end
 
   def show
+    authorize @todo_list
     render json: @todo_list, status: :ok
   end
 
@@ -20,6 +21,7 @@ class TodoListsController < ApplicationController
   end
 
   def update
+    authorize @todo_list
     if @todo_list.update(todo_list_params)
       render json: { todo_list: @todo_list, message: 'Todo list updated successfully' }, status: :ok
     else
@@ -28,6 +30,7 @@ class TodoListsController < ApplicationController
   end
 
   def destroy
+    authorize @todo_list
     if @todo_list.destroy
       render json: { message: 'Todo list deleted successfully' }, status: :ok
     else
@@ -38,11 +41,11 @@ class TodoListsController < ApplicationController
   private
 
   def todo_list_params
-    params.require(:todo_list).permit(:name)
+    params.require(:todo_list).permit(:name, :status)
   end
 
   def set_todo_list
-    @todo_list = current_user.todo_lists.find_by(id: params[:id])
+    @todo_list = policy_scope(TodoList).find_by(id: params[:id])
     render json: { error: 'TodoList not found' }, status: :not_found unless @todo_list
   end
 end
