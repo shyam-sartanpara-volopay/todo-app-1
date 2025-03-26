@@ -65,7 +65,7 @@ RSpec.describe 'Collaborations', type: :request do
 
     context 'when user is not a collaborator' do
       subject{ get "/todo_lists/#{todo_list.id}/collaborations", headers: other_user_headers}
-      it_behaves_like 'not_found error', 'No TodoList exists'
+      it_behaves_like 'not_found error', 'TodoList not found'
     end
   end
 
@@ -117,7 +117,7 @@ RSpec.describe 'Collaborations', type: :request do
 
     context 'User tries to delete an not existing collaboration' do
       subject{ delete "/todo_lists/#{todo_list.id}/collaborations/#{other_user.id}", headers: user_headers }
-      it_behaves_like 'not_found error', 'Collaboration not found'
+      it_behaves_like 'not_found error', 'User not found'
     end
 
     context 'when user is not owner' do

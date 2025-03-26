@@ -18,7 +18,7 @@ RSpec.describe 'Todos API', type: :request do
     it 'returns not_found error' do
       subject
       expect(response).to have_http_status(:not_found)
-      expect(JSON.parse(response.body)).to eq('error' => 'No TodoList exists')
+      expect(JSON.parse(response.body)).to eq('error' => 'TodoList not found')
     end
   end
 
@@ -83,7 +83,7 @@ RSpec.describe 'Todos API', type: :request do
     end
 
     context 'when collaborator tries access' do
-      it 'rcreates a new todo' do
+      it 'creates a new todo' do
         post "/todo_lists/#{todo_list.id}/todos", params: valid_params, headers: collaboration_user_headers
         expect(response).to have_http_status(:created)
       end
@@ -100,7 +100,8 @@ RSpec.describe 'Todos API', type: :request do
       it 'returns the todo details' do
         get "/todo_lists/#{todo_list.id}/todos/#{todo.id}", headers: headers
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['id']).to eq(todo.id)
+        expect(JSON.parse(response.body)['data']['id']).to eq(todo.id)
+        expect(JSON.parse(response.body)['message']).to eq("Todo fetched successfully")
       end
     end
 
@@ -129,7 +130,8 @@ RSpec.describe 'Todos API', type: :request do
       it 'updates the todo' do
         patch "/todo_lists/#{todo_list.id}/todos/#{todo.id}", params: update_params, headers: headers
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['todo']['title']).to eq('Updated Title')
+        json_data = JSON.parse(JSON.parse(response.body)['data'])
+        expect(json_data['title']).to eq('Updated Title')
       end
     end
 
