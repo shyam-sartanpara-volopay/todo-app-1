@@ -59,7 +59,7 @@ RSpec.describe TaskPolicy, type: :policy do
 
   describe "#create?" do
     let(:action) { :create? }
-    let(:new_task) { build(:task, todo_list: todo_list) } # ✅ Use `build` instead of `create`
+    let(:new_task) { build(:task, todo_list: todo_list) }
 
     context "when user is the owner" do
       let(:policy) { described_class.new(user, new_task) }

@@ -4,7 +4,7 @@ class ApplicationController < ActionController::API
 
         before_action :authenticate_user!, unless: -> { devise_controller? }
         
-        rescue_from Pundit::NotAuthorizedError do |exception|
+        rescue_from Pundit::NotAuthorizedError do |_exception|
                 render json: { error: "You are not authorized to perform this action" }, status: :forbidden
         end
               

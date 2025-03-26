@@ -3,8 +3,7 @@ require 'rails_helper'
 RSpec.describe "TodoLists API", type: :request do
   let!(:owner) { create(:user) }
   let!(:collaborator) { create(:user) }
-  let!(:random_user) { create(:user) } # A user who is neither an owner nor a collaborator
-
+  let!(:random_user) { create(:user) }
   let!(:owner_todo_list) { create(:todo_list, user: owner) }
   let!(:collaborator_todo_list) { create(:todo_list, user: collaborator) }
   let!(:owner_task) { create(:task, todo_list: owner_todo_list) }
@@ -22,7 +21,6 @@ RSpec.describe "TodoLists API", type: :request do
     describe "GET #index" do
       it "returns all todo lists owned or collaborated on by the user" do
         get todo_lists_path, headers: owner_headers, as: :json
-
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
         

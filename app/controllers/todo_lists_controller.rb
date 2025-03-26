@@ -42,24 +42,14 @@ class TodoListsController < ApplicationController
   def set_todo_lists
     @todo_lists = policy_scope(TodoList)
   end
-
+  
   def set_todo_list
-    @todo_list = TodoList.find_by(id: params[:id])
-  
-    if @todo_list.nil?
-      render json: { message: 'Todo list not found' }, status: :not_found
-      return
-    end
-  
-    # Apply policy_scope to ensure correct access control
-    if policy_scope(TodoList).exists?(id: @todo_list.id)
-      authorize @todo_list
-    else
-      render json: { message: 'You are not authorized to access this todo list' }, status: :forbidden
-    end
+    @todo_list = TodoList.find(params[:id])
+    authorize @todo_list
+  rescue ActiveRecord::RecordNotFound
+    render json: { message: 'Todo list not found' }, status: :not_found
   end
   
-
   def authorize_todo_list
     authorize @todo_list
   end

@@ -39,7 +39,7 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def user_is_collaborator?
-    Collaboration.where(user_id: user.id, todo_list_id: record.todo_list_id).limit(1).exists?
+    record.todo_list.collaborations.exists?(user_id: user.id)
   end
-  
+
 end
