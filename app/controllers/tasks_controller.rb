@@ -46,10 +46,12 @@ class TasksController < ApplicationController
     @todo_list = policy_scope(TodoList).find_by(id: params[:todo_list_id])
     return render json: { message: 'Todo list not found' }, status: :not_found unless @todo_list
   end
-
+  
   def set_task
-    @task = policy_scope(Task).find_by(id: params[:id])
-    return render json: { message: 'Task not found' }, status: :not_found unless @task
+    @task = Task.find(params[:id])
+    authorize @task
+  rescue ActiveRecord::RecordNotFound
+    render json: { message: 'Task not found' }, status: :not_found
   end
 
   def authorize_todo_list
