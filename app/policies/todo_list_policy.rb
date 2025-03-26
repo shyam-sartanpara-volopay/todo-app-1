@@ -1,11 +1,19 @@
 class TodoListPolicy < ApplicationPolicy
 
+  class Scope < Scope
+    def resolve
+      scope.left_joins(:collaborations)
+           .where("todo_lists.user_id = ? OR collaborations.user_id = ?", user.id, user.id)
+           .distinct
+    end
+  end
+
   def index?
-    authorized?
+    has_access?
   end
 
   def show?
-    authorized?
+    has_access?
   end
 
   def create?
@@ -22,7 +30,7 @@ class TodoListPolicy < ApplicationPolicy
 
   private
 
-  def authorized?
+  def has_access?
     user_is_owner? || user_is_collaborator?
   end
 

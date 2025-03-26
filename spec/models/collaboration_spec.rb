@@ -17,5 +17,11 @@ RSpec.describe Collaboration, type: :model do
       duplicate_collaboration.valid?
       expect(duplicate_collaboration.errors[:user_id]).to include("is already a collaborator for this todo list")
     end
+
+    it "does not allow the owner to be a collaborator" do
+      invalid_collaboration = Collaboration.new(user: owner, todo_list: todo_list)
+      expect(invalid_collaboration).not_to be_valid
+      expect(invalid_collaboration.errors[:user_id]).to include("cannot be a collaborator on their own todo list")
+    end
   end
 end

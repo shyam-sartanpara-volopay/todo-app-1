@@ -58,7 +58,7 @@ RSpec.describe "Collaborations API", type: :request do
   describe "POST #create" do
     context "when authenticated" do
       it "creates a new collaboration" do
-        new_user = create(:user) # A different user to collaborate
+        new_user = create(:user)
 
         expect {
           post todo_list_collaborations_path(todo_list), params: { collaboration: { user_id: new_user.id } }, headers: auth_headers, as: :json

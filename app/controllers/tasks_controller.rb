@@ -1,12 +1,12 @@
 class TasksController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_todo_list, only: [:index, :create]
-  before_action :authorize_todo_list, only: [:index, :create]
+  before_action :authorize_todo_list, only: [:index]
   before_action :set_task, only: [:show, :update, :destroy]
   before_action :authorize_task, only: [:show, :update, :destroy]
 
   def index
-    render json: { message: 'Tasks retrieved successfully', data: @todo_list.tasks }, status: :ok
+    tasks = policy_scope(Task).where(todo_list_id: @todo_list.id)
+    render json: { message: 'Tasks retrieved successfully', data: tasks }, status: :ok
   end
 
   def show
@@ -16,6 +16,7 @@ class TasksController < ApplicationController
   def create
     @task = @todo_list.tasks.build(task_params)
     authorize @task
+
     if @task.save
       render json: { message: 'Task created successfully', data: @task }, status: :created
     else
@@ -38,39 +39,29 @@ class TasksController < ApplicationController
       render json: { message: 'Task deletion failed', errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
   end
-  
 
   private
 
   def set_todo_list
-    @todo_list = TodoList
-                   .left_joins(:collaborations)
-                   .where("todo_lists.user_id = ? OR collaborations.user_id = ?", current_user.id, current_user.id)
-                   .distinct
-                   .includes(:tasks)
-                   .find_by!(id: params[:todo_list_id])
-  rescue ActiveRecord::RecordNotFound
-    render json: { message: 'Todo list not found' }, status: :not_found
+    @todo_list = policy_scope(TodoList).find_by(id: params[:todo_list_id])
+    return render json: { message: 'Todo list not found' }, status: :not_found unless @todo_list
   end
 
   def set_task
-    @task = Task.joins(:todo_list)
-                .left_joins(todo_list: :collaborations)
-                .where("todo_lists.user_id = ? OR collaborations.user_id = ?", current_user.id, current_user.id)
-                .find_by!(id: params[:id])
-  rescue ActiveRecord::RecordNotFound
-    render json: { message: 'Task not found' }, status: :not_found
+    @task = policy_scope(Task).find_by(id: params[:id])
+    return render json: { message: 'Task not found' }, status: :not_found unless @task
   end
 
   def authorize_todo_list
     authorize @todo_list
   end
 
-  def authorize_task(task = @task)
-    authorize task
+  def authorize_task
+    authorize @task
   end
 
   def task_params
     params.require(:task).permit(:title, :description, :completed)
   end
 end
+

@@ -20,6 +20,25 @@ RSpec.describe TaskPolicy, type: :policy do
     it { expect(policy.send(action)).to be false }
   end
 
+
+  describe "#index?" do
+    let(:action) { :index? }
+
+    context "when user is the owner" do
+      include_examples 'grants access'
+    end
+
+    context "when user is a collaborator" do
+      let(:policy) { described_class.new(collaborator, task) }
+      include_examples 'grants access'
+    end
+
+    context "when user is neither owner nor collaborator" do
+      let(:policy) { described_class.new(other_user, task) }
+      include_examples 'denies access'
+    end
+  end
+
   describe "#show?" do
     let(:action) { :show? }
 

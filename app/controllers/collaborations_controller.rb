@@ -1,12 +1,12 @@
 class CollaborationsController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_todo_list, only: [:index, :create]
   before_action :authorize_todo_list, only: [:index, :create]
   before_action :set_collaboration, only: [:show, :update, :destroy]
   before_action :authorize_collaboration, only: [:show, :update, :destroy]
 
   def index
-    render json: { message: 'Collaborations retrieved successfully', data: @todo_list.collaborations }, status: :ok
+    collaborations = @todo_list.collaborations
+    render json: { message: 'Collaborations retrieved successfully', data: collaborations }, status: :ok
   end
 
   def show
@@ -40,25 +40,15 @@ class CollaborationsController < ApplicationController
     end
   end
 
-
   private
 
   def set_todo_list
-    @todo_list = TodoList
-                   .left_joins(:collaborations)
-                   .where("todo_lists.user_id = ? OR collaborations.user_id = ?", current_user.id, current_user.id)
-                   .distinct
-                   .find_by(id: params[:todo_list_id])
-
+    @todo_list = TodoList.find_by(id: params[:todo_list_id])
     return render json: { message: 'Todo List not found' }, status: :not_found unless @todo_list
   end
 
   def set_collaboration
-    @collaboration = Collaboration.joins(:todo_list)
-                                  .left_joins(todo_list: :collaborations)
-                                  .where("todo_lists.user_id = ? OR collaborations.user_id = ?", current_user.id, current_user.id)
-                                  .find_by(id: params[:id])
-
+    @collaboration = Collaboration.find_by(id: params[:id])
     return render json: { message: 'Collaboration not found' }, status: :not_found unless @collaboration
   end
 

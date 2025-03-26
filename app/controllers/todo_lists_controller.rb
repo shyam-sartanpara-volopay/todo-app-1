@@ -1,10 +1,8 @@
 class TodoListsController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_todo_lists, only: :index
   before_action :set_todo_list, only: [:show, :update, :destroy]
   before_action :authorize_todo_list, only: [:show, :update, :destroy]
 
-  
   def index
     render json: { message: 'Todo lists retrieved successfully', data: @todo_lists.as_json(include: :tasks) }, status: :ok
   end
@@ -15,7 +13,7 @@ class TodoListsController < ApplicationController
 
   def create
     @todo_list = current_user.todo_lists.build(todo_list_params)
-    authorize_todo_list(@todo_list)
+    authorize @todo_list
     if @todo_list.save
       render json: { message: 'Todo list created successfully', data: @todo_list.as_json(include: :tasks) }, status: :created
     else
@@ -39,30 +37,31 @@ class TodoListsController < ApplicationController
     end
   end
 
-
   private
 
   def set_todo_lists
-    @todo_lists = TodoList
-                    .left_joins(:collaborations)
-                    .where("todo_lists.user_id = ? OR collaborations.user_id = ?", current_user.id, current_user.id)
-                    .distinct
-                    .includes(:tasks)
+    @todo_lists = policy_scope(TodoList)
   end
 
   def set_todo_list
-    @todo_list = TodoList
-                   .left_joins(:collaborations)
-                   .where("todo_lists.user_id = ? OR collaborations.user_id = ?", current_user.id, current_user.id)
-                   .distinct
-                   .includes(:tasks)
-                   .find_by!(id: params[:id])
-  rescue ActiveRecord::RecordNotFound
-    render json: { message: 'Todo list not found' }, status: :not_found
+    @todo_list = TodoList.find_by(id: params[:id])
+  
+    if @todo_list.nil?
+      render json: { message: 'Todo list not found' }, status: :not_found
+      return
+    end
+  
+    # Apply policy_scope to ensure correct access control
+    if policy_scope(TodoList).exists?(id: @todo_list.id)
+      authorize @todo_list
+    else
+      render json: { message: 'You are not authorized to access this todo list' }, status: :forbidden
+    end
   end
+  
 
-  def authorize_todo_list(todo_list = @todo_list)
-    authorize todo_list
+  def authorize_todo_list
+    authorize @todo_list
   end
   
   def todo_list_params

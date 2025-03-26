@@ -1,0 +1,91 @@
+
+Tasks API
+  GET #index
+    returns all tasks for the owner
+    returns all tasks for a collaborator
+  GET #show
+    allows the owner to view a task
+    allows a collaborator to view a task
+  POST #create
+    allows the owner to create a task
+Collaboration exists? true
+    allows a collaborator to create a task (FAILED - 1)
+  PATCH #update
+    allows the owner to update a task
+    allows a collaborator to update a task
+  DELETE #destroy
+    allows the owner to delete a task
+    does not allow a collaborator to delete a task
+  Unauthenticated access
+    returns unauthorized for index
+    returns unauthorized for show
+    returns unauthorized for create
+    returns unauthorized for update
+    returns unauthorized for delete
+
+Failures:
+
+  1) Tasks API POST #create allows a collaborator to create a task
+     Failure/Error:
+       expect {
+         post todo_list_tasks_path(todo_list), params: valid_attributes, headers: collaborator_headers, as: :json
+         # binding.pry
+       }.to change(Task, :count).by(1)
+
+       expected `Task.count` to have changed by 1, but was changed by 0
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-support-3.13.2/lib/rspec/support.rb:110:in `block in <module:Support>'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-support-3.13.2/lib/rspec/support.rb:119:in `notify_failure'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-expectations-3.13.3/lib/rspec/expectations/fail_with.rb:35:in `fail_with'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-expectations-3.13.3/lib/rspec/expectations/handler.rb:39:in `handle_failure'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-expectations-3.13.3/lib/rspec/expectations/handler.rb:55:in `block in handle_matcher'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-expectations-3.13.3/lib/rspec/expectations/handler.rb:26:in `with_matcher'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-expectations-3.13.3/lib/rspec/expectations/handler.rb:47:in `handle_matcher'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-expectations-3.13.3/lib/rspec/expectations/expectation_target.rb:65:in `to'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-expectations-3.13.3/lib/rspec/expectations/expectation_target.rb:139:in `to'
+     # ./spec/requests/tasks_controller_spec.rb:52:in `block (3 levels) in <top (required)>'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:263:in `instance_exec'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:263:in `block in run'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:511:in `block in with_around_and_singleton_context_hooks'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:468:in `block in with_around_example_hooks'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/hooks.rb:486:in `block in run'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/hooks.rb:626:in `block in run_around_example_hooks_for'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:352:in `call'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-rails-7.1.1/lib/rspec/rails/adapters.rb:75:in `block (2 levels) in <module:MinitestLifecycleAdapter>'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:457:in `instance_exec'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:457:in `instance_exec'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/hooks.rb:390:in `execute_with'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/hooks.rb:628:in `block (2 levels) in run_around_example_hooks_for'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:352:in `call'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/hooks.rb:629:in `run_around_example_hooks_for'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/hooks.rb:486:in `run'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:468:in `with_around_example_hooks'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:511:in `with_around_and_singleton_context_hooks'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example.rb:259:in `run'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example_group.rb:646:in `block in run_examples'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example_group.rb:642:in `map'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example_group.rb:642:in `run_examples'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example_group.rb:607:in `run'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example_group.rb:608:in `block in run'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example_group.rb:608:in `map'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/example_group.rb:608:in `run'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/runner.rb:121:in `block (3 levels) in run_specs'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/runner.rb:121:in `map'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/runner.rb:121:in `block (2 levels) in run_specs'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/configuration.rb:2097:in `with_suite_hooks'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/runner.rb:116:in `block in run_specs'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/reporter.rb:74:in `report'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/runner.rb:115:in `run_specs'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/runner.rb:89:in `run'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/runner.rb:71:in `run'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/lib/rspec/core/runner.rb:45:in `invoke'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/rspec-core-3.13.3/exe/rspec:4:in `<top (required)>'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/bin/rspec:25:in `load'
+     # /Users/prashant.sah/.rbenv/versions/3.2.2/bin/rspec:25:in `<main>'
+
+Finished in 7.66 seconds (files took 1.55 seconds to load)
+15 examples, 1 failure
+
+Failed examples:
+
+rspec ./spec/requests/tasks_controller_spec.rb:50 # Tasks API POST #create allows a collaborator to create a task
+

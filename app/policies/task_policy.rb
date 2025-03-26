@@ -1,15 +1,27 @@
 class TaskPolicy < ApplicationPolicy
+  class Scope < Scope
+    def resolve
+      scope.joins(:todo_list)
+           .left_joins(todo_list: :collaborations)
+           .where("todo_lists.user_id = ? OR collaborations.user_id = ?", user.id, user.id)
+           .distinct
+    end
+  end
+
+  def index?
+    has_access?
+  end
 
   def show?
-    authorized?
+    has_access?
   end
 
   def create?
-    authorized?
+    has_access?
   end
 
   def update?
-    authorized?
+    has_access?
   end
 
   def destroy?
@@ -18,7 +30,7 @@ class TaskPolicy < ApplicationPolicy
 
   private
 
-  def authorized?
+  def has_access?
     user_is_owner? || user_is_collaborator?
   end
 
@@ -27,6 +39,7 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def user_is_collaborator?
-    record.todo_list.collaborations.exists?(user_id: user.id)
+    Collaboration.where(user_id: user.id, todo_list_id: record.todo_list_id).limit(1).exists?
   end
+  
 end
