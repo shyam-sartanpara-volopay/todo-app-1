@@ -120,7 +120,7 @@ RSpec.describe "Tasks API", type: :request do
 
     it "does not allow updating a task they are not part of" do
       patch todo_list_task_path(todo_list, task), 
-            params: { todo_list: { category: "Updated" } }, 
+            params: { task: { title: "Updated Task" } }, 
             headers: random_user_headers, 
             as: :json
 
