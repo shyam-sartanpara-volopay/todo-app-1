@@ -8,6 +8,7 @@ Rails.application.routes.draw do
 
   resources :todo_lists do
     resources :tasks
+    resources :collaborations
 
   end
 end

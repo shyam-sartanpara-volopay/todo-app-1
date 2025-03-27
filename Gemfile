@@ -56,3 +56,14 @@ gem 'devise_token_auth'
 group :development, :test do
   gem 'faker'
 end
+
+gem "pundit", "~> 2.5"
+
+group :test do
+  gem 'shoulda-matchers', '~> 5.0'
+end
+
+group :development, :test do
+  gem 'pry'
+  gem 'pry-byebug'
+end
