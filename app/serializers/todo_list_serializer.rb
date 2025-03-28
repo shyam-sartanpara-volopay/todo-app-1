@@ -1,5 +1,4 @@
-class TodoListSerializer
-  include Alba::Resource
+class TodoListSerializer < BaseSerializer
 
   attributes :id, :category, :status, :created_at, :updated_at
 

@@ -1,5 +1,4 @@
-class TaskSerializer
-  include Alba::Resource
+class TaskSerializer < BaseSerializer
 
   attributes :id, :title, :description, :completed, :created_at, :updated_at
 
