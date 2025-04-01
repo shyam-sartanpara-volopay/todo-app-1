@@ -78,6 +78,8 @@ GEM
       mutex_m
       securerandom (>= 0.3)
       tzinfo (~> 2.0)
+    alba (3.5.0)
+      ostruct (~> 0.6)
     base64 (0.2.0)
     bcrypt (3.1.20)
     benchmark (0.4.0)
@@ -165,6 +167,7 @@ GEM
     nokogiri (1.18.2-x86_64-linux-musl)
       racc (~> 1.4)
     orm_adapter (0.5.0)
+    ostruct (0.6.1)
     pg (1.5.9)
     pp (0.6.2)
       prettyprint
@@ -274,6 +277,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  alba
   bootsnap
   debug
   devise_token_auth
