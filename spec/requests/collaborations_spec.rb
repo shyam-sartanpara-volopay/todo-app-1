@@ -51,8 +51,10 @@ RSpec.describe 'Collaborations', type: :request do
     context 'when user is the owner' do
       it 'returns list of collaborations' do
         get "/todo_lists/#{todo_list.id}/collaborations", headers: user_headers
+        
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body.pluck('user_id')).to eq([collaboration_user.id])
+        
+        expect(response.parsed_body.pluck('email')).to eq([collaboration_user.email])
       end
     end
 

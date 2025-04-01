@@ -10,7 +10,7 @@ class TodosController < ApplicationController
 
   def show
     authorize @todo_list, policy_class: TodoPolicy 
-    render json: { message: "Todo fetched successfully", data: JSON.parse(TodoDetailSerializer.new(@todo).serialize)}, status: :ok
+    render json: { message: "Todo fetched successfully", data: TodoDetailSerializer.new(@todo).serializable_hash}, status: :ok
   end
 
   def create

@@ -8,7 +8,7 @@ class TodoListsController < ApplicationController
 
   def show
     authorize @todo_list
-    render json: { message: "Todolist fetched successfully", data: JSON.parse(TodoListDetailSerializer.new(@todo_list).serialize) }, status: :ok
+    render json: { message: "Todolist fetched successfully", data: TodoListDetailSerializer.new(@todo_list).serializable_hash }, status: :ok
   end
 
   def create

@@ -1,14 +1,6 @@
-class TodoListDetailSerializer
-  include Alba::Resource
-
+class TodoListDetailSerializer < BaseSerializer
   attributes :id, :name, :status
-
-  one :user do
-    attributes :id, :name, :email
-  end
-
-  many :collaborators do
-    attributes :id, :name, :email
-  end
+  one :user, resource: UserSerializer
+  many :collaborations, resource: CollaborationSerializer
 end
   
