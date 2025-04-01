@@ -4,18 +4,18 @@ class TodoListsController < ApplicationController
   before_action :authorize_todo_list, only: [:show, :update, :destroy]
 
   def index
-    render json: { message: 'Todo lists retrieved successfully', data: TodoListSerializer.new(@todo_lists).serializable_hash }, status: :ok
+    render json: { message: 'Todo lists retrieved successfully', data: TodoListMiniSerializer.new(@todo_lists).serializable_hash }, status: :ok
   end
 
   def show
-    render json: { message: 'Todo list retrieved successfully', data: TodoListSerializer.new(@todo_list).serializable_hash }, status: :ok
+    render json: { message: 'Todo list retrieved successfully', data: TodoListDetailSerializer.new(@todo_list).serializable_hash }, status: :ok
   end
 
   def create
     @todo_list = current_user.todo_lists.build(todo_list_params)
     authorize @todo_list
     if @todo_list.save
-      render json: { message: 'Todo list created successfully', data: TodoListSerializer.new(@todo_list).serializable_hash }, status: :created
+      render json: { message: 'Todo list created successfully', data: TodoListDetailSerializer.new(@todo_list).serializable_hash }, status: :created
     else
       render json: { message: 'Todo list creation failed', errors: @todo_list.errors.full_messages }, status: :unprocessable_entity
     end
@@ -23,7 +23,7 @@ class TodoListsController < ApplicationController
 
   def update
     if @todo_list.update(todo_list_params)
-      render json: { message: 'Todo list updated successfully', data: TodoListSerializer.new(@todo_list).serializable_hash }, status: :ok
+      render json: { message: 'Todo list updated successfully', data: TodoListDetailSerializer.new(@todo_list).serializable_hash }, status: :ok
     else
       render json: { message: 'Todo list update failed', errors: @todo_list.errors.full_messages }, status: :unprocessable_entity
     end

@@ -6,11 +6,11 @@ class TasksController < ApplicationController
 
   def index
     tasks = policy_scope(Task).where(todo_list_id: @todo_list.id)
-    render json: { message: 'Tasks retrieved successfully', data: TaskSerializer.new(tasks).serializable_hash }, status: :ok
+    render json: { message: 'Tasks retrieved successfully', data: TaskMiniSerializer.new(tasks).serializable_hash }, status: :ok
   end
 
   def show
-    render json: { message: 'Task retrieved successfully', data: TaskSerializer.new(@task).serializable_hash }, status: :ok
+    render json: { message: 'Task retrieved successfully', data: TaskDetailSerializer.new(@task).serializable_hash }, status: :ok
   end
 
   def create
@@ -18,7 +18,7 @@ class TasksController < ApplicationController
     authorize @task
 
     if @task.save
-      render json: { message: 'Task created successfully', data: TaskSerializer.new(@task).serializable_hash }, status: :created
+      render json: { message: 'Task created successfully', data: TaskDetailSerializer.new(@task).serializable_hash }, status: :created
     else
       render json: { message: 'Task creation failed', errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
@@ -26,7 +26,7 @@ class TasksController < ApplicationController
 
   def update
     if @task.update(task_params)
-      render json: { message: 'Task updated successfully', data: TaskSerializer.new(@task).serializable_hash }, status: :ok
+      render json: { message: 'Task updated successfully', data: TaskDetailSerializer.new(@task).serializable_hash }, status: :ok
     else
       render json: { message: 'Task update failed', errors: @task.errors.full_messages }, status: :unprocessable_entity
     end

@@ -6,11 +6,11 @@ class CollaborationsController < ApplicationController
 
   def index
     collaborations = @todo_list.collaborations
-    render json: { message: 'Collaborations retrieved successfully', data: CollaborationSerializer.new(collaborations).serializable_hash }, status: :ok
+    render json: { message: 'Collaborations retrieved successfully', data: CollaborationMiniSerializer.new(collaborations).serializable_hash }, status: :ok
   end
 
   def show
-    render json: { message: 'Collaboration retrieved successfully', data: CollaborationSerializer.new(@collaboration).serializable_hash }, status: :ok
+    render json: { message: 'Collaboration retrieved successfully', data: CollaborationDetailSerializer.new(@collaboration).serializable_hash }, status: :ok
   end
 
   def create
@@ -18,7 +18,7 @@ class CollaborationsController < ApplicationController
     authorize collaboration
 
     if collaboration.save
-      render json: { message: 'Collaboration added successfully', data: CollaborationSerializer.new(collaboration).serializable_hash }, status: :created
+      render json: { message: 'Collaboration added successfully', data: CollaborationDetailSerializer.new(collaboration).serializable_hash }, status: :created
     else
       render json: { message: 'Failed to add collaboration', errors: collaboration.errors.full_messages }, status: :unprocessable_entity
     end
@@ -26,7 +26,7 @@ class CollaborationsController < ApplicationController
 
   def update
     if @collaboration.update(collaboration_params)
-      render json: { message: 'Collaboration updated successfully', data: CollaborationSerializer.new(@collaboration).serializable_hash }, status: :ok
+      render json: { message: 'Collaboration updated successfully', data: CollaborationDetailSerializer.new(@collaboration).serializable_hash }, status: :ok
     else
       render json: { message: 'Failed to update collaboration', errors: @collaboration.errors.full_messages }, status: :unprocessable_entity
     end
