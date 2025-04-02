@@ -3,18 +3,18 @@ class TodoListsController < ApplicationController
 
   def index
     todo_lists = policy_scope(TodoList)
-    render json: todo_lists, status: :ok
+    render json: TodoListSerializer.new(todo_lists).serialize, status: :ok
   end
 
   def show
     authorize @todo_list
-    render json: @todo_list, status: :ok
+    render json: { message: "Todolist fetched successfully", data: TodoListDetailSerializer.new(@todo_list).serializable_hash }, status: :ok
   end
 
   def create
     todo_list = current_user.todo_lists.build(todo_list_params)
     if todo_list.save
-      render json: { todo_list: todo_list, message: 'Todo list created successfully' }, status: :created
+      render json: { message: 'Todolist created successfully', data: JSON.parse(TodoListSerializer.new(todo_list).serialize) }, status: :created
     else
       render json: { errors: todo_list.errors.full_messages }, status: :unprocessable_entity
     end
@@ -23,7 +23,7 @@ class TodoListsController < ApplicationController
   def update
     authorize @todo_list
     if @todo_list.update(todo_list_params)
-      render json: { todo_list: @todo_list, message: 'Todo list updated successfully' }, status: :ok
+      render json: { message: 'Todolist updated successfully',data: JSON.parse(TodoListSerializer.new(@todo_list).serialize) }, status: :ok
     else
       render json: { errors: @todo_list.errors.full_messages }, status: :unprocessable_entity
     end
@@ -32,7 +32,7 @@ class TodoListsController < ApplicationController
   def destroy
     authorize @todo_list
     if @todo_list.destroy
-      render json: { message: 'Todo list deleted successfully' }, status: :ok
+      render json: { message: 'Todolist deleted successfully' }, status: :ok
     else
       render json: { errors: @todo_list.errors.full_messages }
     end

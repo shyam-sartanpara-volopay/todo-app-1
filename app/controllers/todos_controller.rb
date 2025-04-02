@@ -5,18 +5,18 @@ class TodosController < ApplicationController
   def index
     authorize @todo_list, policy_class: TodoPolicy 
     todos = @todo_list.todos
-    render json: todos, status: :ok
+    render json: TodoSerializer.new(todos).serialize, status: :ok
   end
 
   def show
     authorize @todo_list, policy_class: TodoPolicy 
-    render json: @todo, status: :ok
+    render json: { message: "Todo fetched successfully", data: TodoDetailSerializer.new(@todo).serializable_hash}, status: :ok
   end
 
   def create
     todo = @todo_list.todos.build(todo_params)
     if todo.save
-      render json: { todo:, message: 'Todo created successfully' }, status: :created
+      render json: { message: 'Todo created successfully', data: TodoSerializer.new(todo).serialize}, status: :created
     else
       render json: { errors: todo.errors.full_messages }, status: :unprocessable_entity
     end
@@ -25,7 +25,7 @@ class TodosController < ApplicationController
   def update
     authorize @todo_list, policy_class: TodoPolicy 
     if @todo.update(todo_params)
-      render json: { todo: @todo, message: 'Todo updated successfully' }, status: :ok
+      render json: { message: 'Todo updated successfully',data: TodoSerializer.new(@todo).serialize }, status: :ok
     else
       render json: { errors: @todo.errors.full_messages }, status: :unprocessable_entity
     end
@@ -48,7 +48,7 @@ class TodosController < ApplicationController
 
   def fetch_todo_list
     @todo_list = policy_scope(TodoList).find_by(id: params[:todo_list_id])
-    render json: { error: 'No TodoList exists' }, status: :not_found unless @todo_list
+    render json: { error: 'TodoList not found' }, status: :not_found unless @todo_list
   end
 
   def set_todo

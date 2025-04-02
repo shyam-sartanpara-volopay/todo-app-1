@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'TodoLists API', type: :request do
   let!(:user) { create(:user) }
   let!(:other_user) { create(:user) }
-  let(:headers) { user.create_new_auth_token }
+  let(:user_headers) { user.create_new_auth_token }
   let!(:todo_lists) { create_list(:todo_list, 3, user: user) }
   let(:todo_list) { todo_lists.first }
   let!(:other_todo_list) { create(:todo_list, user: other_user) }
@@ -32,7 +32,7 @@ RSpec.describe 'TodoLists API', type: :request do
     it 'returns created' do
       subject
       expect(response).to have_http_status(:created)
-      expect(JSON.parse(response.body)['message']).to eq('Todo list created successfully')
+      expect(JSON.parse(response.body)['message']).to eq('Todolist created successfully')
    end
   end 
 
@@ -59,8 +59,8 @@ RSpec.describe 'TodoLists API', type: :request do
     end
 
     context 'when user is the owner' do
-      it 'returns all todo lists of the user' do
-        get '/todo_lists', headers: headers
+      it 'returns all todolists of the user' do
+        get '/todo_lists', headers: user_headers
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body).size).to eq(todo_lists.size)
       end
@@ -83,9 +83,9 @@ RSpec.describe 'TodoLists API', type: :request do
 
     context 'when user is authenticated' do
       it 'returns the todo list details' do
-        get "/todo_lists/#{todo_list.id}", headers: headers
+        get "/todo_lists/#{todo_list.id}", headers: user_headers
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['id']).to eq(todo_list.id)
+        expect(JSON.parse(response.body)['data']['id']).to eq(todo_list.id)
       end
     end
 
@@ -93,18 +93,18 @@ RSpec.describe 'TodoLists API', type: :request do
       it 'returns the todo list details' do
         get "/todo_lists/#{todo_list.id}", headers: collaboration_user_headers
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['id']).to eq(todo_list.id)
+        expect(JSON.parse(response.body)['data']['id']).to eq(todo_list.id)
       end
     end
 
     context 'when user tries to access another user todo list' do
-        subject{ get "/todo_lists/#{other_todo_list.id}", headers: headers }
-        it_behaves_like 'not_found error'
+      subject{ get "/todo_lists/#{other_todo_list.id}", headers: user_headers }
+      it_behaves_like 'not_found error'
     end
 
     context 'when non-collaborator tries to access' do
-        subject{ get "/todo_lists/#{todo_list.id}", headers: other_user_headers }
-        it_behaves_like 'not_found error'
+      subject{ get "/todo_lists/#{todo_list.id}", headers: other_user_headers }
+      it_behaves_like 'not_found error'
     end
   end
 
@@ -117,21 +117,22 @@ RSpec.describe 'TodoLists API', type: :request do
       it_behaves_like 'authentication error'
     end
 
-    context 'when user is authenticated' do
+    context 'when user creates todolist with valid params' do
       subject{ expect do
-        post '/todo_lists', params: valid_params, headers: headers
-      end.to change(user.todo_lists, :count).by(1) }
+        post '/todo_lists', params: valid_params, headers: user_headers
+      end.to change(user.todo_lists, :count).by(1)}
       it_behaves_like 'successful creation'
-    
-      subject{ post '/todo_lists', params: invalid_params, headers: headers }
+    end
+
+    context 'when user creates todolist with invalid params' do
+      subject{ post '/todo_lists', params: invalid_params, headers: user_headers }
       it_behaves_like 'unprocessable_entity error', "Name can't be blank"
     end
 
     context 'when user is a collaborator' do
       subject{ expect do
         post '/todo_lists', params: valid_params, headers: collaboration_user_headers
-      end.to change(collaboration_user.todo_lists, :count).by(1) }
-
+      end.to change(collaboration_user.todo_lists, :count).by(1)}
       it_behaves_like 'successful creation'
     end
 
@@ -153,14 +154,14 @@ RSpec.describe 'TodoLists API', type: :request do
 
     context 'when user updates their own todo list' do
       it 'updates the todo list' do
-        patch "/todo_lists/#{todo_list.id}", params: update_params, headers: headers
+        patch "/todo_lists/#{todo_list.id}", params: update_params, headers: user_headers
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['todo_list']['name']).to eq(update_params[:todo_list][:name])
+        expect(JSON.parse(response.body)['data']['name']).to eq(update_params[:todo_list][:name])
       end
     end
 
     context 'when user tries to update another user todo list' do 
-      subject{ patch "/todo_lists/#{other_todo_list.id}", params: update_params, headers: headers }
+      subject{ patch "/todo_lists/#{other_todo_list.id}", params: update_params, headers: user_headers }
       it_behaves_like 'not_found error' 
     end
 
@@ -168,7 +169,7 @@ RSpec.describe 'TodoLists API', type: :request do
       it 'updates the todo list' do
         patch "/todo_lists/#{todo_list.id}", params: update_params, headers: collaboration_user_headers
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['todo_list']['name']).to eq(update_params[:todo_list][:name])
+        expect(JSON.parse(response.body)['data']['name']).to eq(update_params[:todo_list][:name])
       end
     end
 
@@ -184,20 +185,20 @@ RSpec.describe 'TodoLists API', type: :request do
       it_behaves_like 'authentication error'
     end
 
-    context 'when non-collaborator tries to delete todo_list' do
-      subject{ delete "/todo_lists/#{other_todo_list.id}", headers: headers }
+    context 'when non-collaborator tries to delete todolist' do
+      subject{ delete "/todo_lists/#{other_todo_list.id}", headers: user_headers }
       it_behaves_like 'not_found error' 
     end
 
-    context 'when collaborator tries to delete todo_list' do
+    context 'when collaborator tries to delete todolist' do
       subject{delete "/todo_lists/#{todo_list.id}", headers: collaboration_user_headers}
       it_behaves_like 'authorization error'    
     end
 
-    context 'when user tries to delete todo_list' do
-      it 'deletes the todo list' do
+    context 'when user tries to delete todolist' do
+      it 'deletes the todolist' do
         expect do
-          delete "/todo_lists/#{todo_list.id}", headers: headers
+          delete "/todo_lists/#{todo_list.id}", headers: user_headers
         end.to change(TodoList, :count).by(-1)
 
         expect(response).to have_http_status(:ok)
